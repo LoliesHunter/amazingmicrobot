@@ -31,7 +31,7 @@ public class MicroBotClient extends TelegramLongPollingBot {
     private final BlockingHttpClient httpClient;
 
     private final URI serviceUri;
-    private static final List<Long> adminUserIds = List.of(433993661L);
+    private static final List<Long> adminUserIds = List.of();
 
     //БРЕД КАКОЙ-ТО
     public MicroBotClient() throws URISyntaxException, MalformedURLException {
@@ -42,12 +42,12 @@ public class MicroBotClient extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return "qnapsybot_bot";
+        return "";
     }
 
     @Override
     public String getBotToken() {
-        return "8199399033:AAHyVb5uDWTrIZ0ePFIBLvf_dgfDn88lDE0";
+        return "";
     }
 
     @Override
