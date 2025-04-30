@@ -1,0 +1,97 @@
+plugins {
+    id("io.micronaut.application") version "4.5.3"
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id("io.micronaut.aot") version "4.5.3"
+}
+
+application {
+    mainClass.set("com.example.botClient.Application") // свой главный класс
+}
+
+tasks.named("shadowJar") {
+    archiveBaseName.set("app")
+    archiveClassifier.set("")
+    archiveVersion.set("")
+    mergeServiceFiles()
+}
+
+version = "0.1"
+group = "com.example.botClient"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    annotationProcessor("org.projectlombok:lombok")
+    annotationProcessor("io.micronaut:micronaut-http-validation")
+    annotationProcessor("io.micronaut.serde:micronaut-serde-processor")
+    implementation("io.micronaut.serde:micronaut-serde-jackson")
+
+    compileOnly("org.projectlombok:lombok")
+    runtimeOnly("ch.qos.logback:logback-classic")
+    testImplementation("io.micronaut:micronaut-http-client")
+    implementation("io.micronaut:micronaut-http-client")
+
+    // Telegram Bots API
+    implementation 'org.telegram:telegrambots:6.8.0'
+
+    // HTTP Client для отправки сообщений
+    implementation 'io.micronaut:micronaut-http-client:4.2.0'
+
+    // Jackson для сериализации JSON
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+
+    // Для запуска Micronaut
+    implementation 'io.micronaut:micronaut-runtime'
+
+}
+
+
+application {
+    mainClass = "com.example.botClient.Application"
+}
+java {
+    sourceCompatibility = JavaVersion.toVersion("21")
+    targetCompatibility = JavaVersion.toVersion("21")
+}
+
+
+graalvmNative.toolchainDetection = false
+
+micronaut {
+    runtime("netty")
+    testRuntime("junit5")
+    processing {
+        incremental(true)
+        annotations("com.example.botClient.*")
+    }
+    aot {
+        // Please review carefully the optimizations enabled below
+        // Check https://micronaut-projects.github.io/micronaut-aot/latest/guide/ for more details
+        optimizeServiceLoading = false
+        convertYamlToJava = false
+        precomputeOperations = true
+        cacheEnvironment = true
+        optimizeClassLoading = true
+        deduceEnvironment = true
+        optimizeNetty = true
+        replaceLogbackXml = true
+    }
+}
+
+
+tasks.named("dockerfileNative") {
+    jdkVersion = "21"
+}
+
+tasks.withType(Jar) {
+    manifest {
+        attributes(
+                'Main-Class': 'com.example.microbot.Application'
+        )
+    }
+}
+
+
+

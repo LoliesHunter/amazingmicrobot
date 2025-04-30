@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: message-saver-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: message-saver-service
+  template:
+    metadata:
+      labels:
+        app: message-saver-service
+    spec:
+      # (опционально) ждём зависимостей:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox
+          command: ['sh','-c','until nc -z postgres 5432; do sleep 2; done;']
+        - name: wait-for-kafka
+          image: busybox
+          command: ['sh','-c','until nc -z kafka 9092; do sleep 2; done;']
+
+      containers:
+        - name: message-saver-service
+          image: lolieshunter/messagesaver-service:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: DATASOURCES_DEFAULT_URL
+              value: "jdbc:postgresql://postgres:5432/messages"
+            - name: DATASOURCES_DEFAULT_USERNAME
+              value: "postgres"
+            - name: DATASOURCES_DEFAULT_PASSWORD
+              value: "password"
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka:9092"

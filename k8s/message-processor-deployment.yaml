@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: message-processor-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: message-processor-service
+  template:
+    metadata:
+      labels:
+        app: message-processor-service
+    spec:
+      initContainers:
+        - name: wait-for-kafka
+          image: busybox
+          command: ['sh','-c','until nc -z kafka 9092; do sleep 2; done;']
+        - name: wait-for-arangodb
+          image: busybox
+          command: ['sh','-c','until nc -z arangodb 8529; do sleep 2; done;']
+
+      containers:
+        - name: message-processor-service
+          image: lolieshunter/messageprocessor-service:latest
+          ports:
+            - containerPort: 8082
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka:9092"
+            - name: ARANGODB_HOST
+              value: "arangodb"
+            - name: ARANGODB_PORT
+              value: "8529"
+            - name: ARANGODB_USER
+              value: "root"
+            - name: ARANGODB_PASSWORD
+              value: "password"
+            - name: ARANGODB_DATABASE
+              value: "messages"

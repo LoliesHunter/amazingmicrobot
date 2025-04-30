@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arangodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: arangodb
+  template:
+    metadata:
+      labels:
+        app: arangodb
+    spec:
+      containers:
+        - name: arangodb
+          image: arangodb/arangodb:latest
+          args: ["--server.endpoint", "tcp://0.0.0.0:8529", "--server.authentication", "true"]
+          ports:
+            - containerPort: 8529
+          env:
+            - name: ARANGO_ROOT_PASSWORD
+              value: "password"
+          volumeMounts:
+            - name: arangodb-data
+              mountPath: /var/lib/arangodb3
+      volumes:
+        - name: arangodb-data
+          emptyDir: {}
